@@ -7,7 +7,7 @@ const sequelize = new Sequelize(
   process.env.DB_PASS,
   {
     host: process.env.DB_HOST,
-    dialect: 'mysql', // Specify your dialect here
+    dialect: 'mysql',
     pool: {
       max: 5,
       min: 0,
@@ -19,12 +19,13 @@ const sequelize = new Sequelize(
 
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
 // Import models
 db.User = require('./models/user')(sequelize, DataTypes);
-// Import other models similarly
+db.Review = require('./models/review')(sequelize, DataTypes);
+db.Product = require('./models/product')(sequelize, DataTypes);
+db.IsLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
+db.CartItem = require('./models/cartItem')(sequelize, DataTypes);
+db.WeeklySpecial = require('./models/weeklySpecial')(sequelize, DataTypes);
 
 // Set up associations
 db.User.hasMany(db.Review, { foreignKey: 'user_id' });
@@ -41,5 +42,8 @@ db.User.belongsToMany(db.Product, { through: db.CartItem, foreignKey: 'user_id' 
 
 db.Product.hasMany(db.WeeklySpecial, { foreignKey: 'product_id' });
 db.WeeklySpecial.belongsTo(db.Product, { foreignKey: 'product_id' });
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 module.exports = db;
