@@ -9,7 +9,15 @@ module.exports = (sequelize, DataTypes) =>
         allowNull: false,
         defaultValue: 0
       }
-    }, {
-      timestamps: false
-    });
-  
+    },
+    loggedIn: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    }
+  }, {
+    timestamps: false
+  });
+
+  return IsLoggedIn;
+};

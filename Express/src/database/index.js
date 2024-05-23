@@ -27,21 +27,7 @@ db.IsLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
 db.CartItem = require('./models/cartItem')(sequelize, DataTypes);
 db.WeeklySpecial = require('./models/weeklySpecial')(sequelize, DataTypes);
 
-// Set up associations
-db.User.hasMany(db.Review, { foreignKey: 'user_id' });
-db.Review.belongsTo(db.User, { foreignKey: 'user_id' });
 
-db.Product.hasMany(db.Review, { foreignKey: 'product_id' });
-db.Review.belongsTo(db.Product, { foreignKey: 'product_id' });
-
-db.User.hasOne(db.IsLoggedIn, { foreignKey: 'user_id' });
-db.IsLoggedIn.belongsTo(db.User, { foreignKey: 'user_id' });
-
-db.Product.belongsToMany(db.User, { through: db.CartItem, foreignKey: 'product_id' });
-db.User.belongsToMany(db.Product, { through: db.CartItem, foreignKey: 'user_id' });
-
-db.Product.hasMany(db.WeeklySpecial, { foreignKey: 'product_id' });
-db.WeeklySpecial.belongsTo(db.Product, { foreignKey: 'product_id' });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
