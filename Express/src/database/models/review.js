@@ -1,16 +1,16 @@
 module.exports = (sequelize, DataTypes) =>
     sequelize.define("review", {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER(11),
         primaryKey: true,
         autoIncrement: true
       },
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER(11),
         allowNull: false
       },
       product_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER(11),
         allowNull: false
       },
       text: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) =>
         allowNull: false
       },
       stars: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER(11),
         allowNull: false
       }
     }, {

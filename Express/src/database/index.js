@@ -18,11 +18,7 @@ db.sequelize = sequelize;
 
 // Import models
 db.User = require('./models/user')(sequelize, DataTypes);
-db.Product = require('./models/product')(sequelize, DataTypes);
-db.CartItem = require('./models/cart_item')(sequelize, DataTypes);
-db.IsLoggedIn = require('./models/is_logged_in')(sequelize, DataTypes);
-db.Review = require('./models/review')(sequelize, DataTypes);
-db.WeeklySpecial = require('./models/weekly_special')(sequelize, DataTypes);
+// Import other models similarly
 
 // Set up associations
 db.User.hasMany(db.Review, { foreignKey: 'user_id' });

@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) =>
     sequelize.define("is_logged_in", {
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER(11),
         primaryKey: true
       },
       is_logged_in: {
