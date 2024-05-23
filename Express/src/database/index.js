@@ -7,23 +7,29 @@ const sequelize = new Sequelize(
   process.env.DB_PASS,
   {
     host: process.env.DB_HOST,
-    dialect: 'mysql' // Specify your dialect here
+    dialect: 'mysql',
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   }
 );
 
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
 // Import models
 db.User = require('./models/user')(sequelize, DataTypes);
-db.Product = require('./models/product')(sequelize, DataTypes);
-db.CartItem = require('./models/cart_item')(sequelize, DataTypes);
-db.IsLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
 db.Review = require('./models/review')(sequelize, DataTypes);
-db.WeeklySpecial = require('./models/weeklyspecials')(sequelize, DataTypes);
+db.Product = require('./models/product')(sequelize, DataTypes);
+db.IsLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
+db.CartItem = require('./models/cartItem')(sequelize, DataTypes);
+db.WeeklySpecial = require('./models/weeklySpecial')(sequelize, DataTypes);
 
 
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 module.exports = db;

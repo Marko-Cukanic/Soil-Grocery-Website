@@ -1,20 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-  const IsLoggedIn = sequelize.define("IsLoggedIn", {
-    userId: {
+  const IsLoggedIn = sequelize.define('IsLoggedIn', {
+    user_id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      references: {
-        model: 'Users', // 'Users' refers to table name
-        key: 'id'
-      }
+      primaryKey: true
     },
-    loggedIn: {
+    is_logged_in: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false
     }
-  }, {
-    timestamps: false
   });
 
   return IsLoggedIn;
