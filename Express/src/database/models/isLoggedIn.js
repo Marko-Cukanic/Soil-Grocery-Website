@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const IsLoggedIn = sequelize.define('IsLoggedIn', {
+  const isLoggedIn = sequelize.define('isLoggedIn', {
     user_id: {
       type: DataTypes.INTEGER,
       primaryKey: true
@@ -10,5 +10,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  return IsLoggedIn;
+  return isLoggedIn;
 };

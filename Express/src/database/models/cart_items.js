@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) =>
-    sequelize.define("weekly_special", {
+    sequelize.define("cart_items", {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) =>
         type: DataTypes.INTEGER,
         allowNull: true
       },
-      discounted_price: {
-        type: DataTypes.DECIMAL(10, 2),
+      quantity: {
+        type: DataTypes.INTEGER,
         allowNull: true
       }
     }, {

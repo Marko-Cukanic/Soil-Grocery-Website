@@ -20,14 +20,27 @@ const sequelize = new Sequelize(
 const db = {};
 
 // Import models
-db.User = require('./models/user')(sequelize, DataTypes);
-db.Review = require('./models/review')(sequelize, DataTypes);
-db.Product = require('./models/product')(sequelize, DataTypes);
-db.IsLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
-db.CartItem = require('./models/cartItem')(sequelize, DataTypes);
-db.WeeklySpecial = require('./models/weeklySpecial')(sequelize, DataTypes);
+db.users = require('./models/users')(sequelize, DataTypes);
+db.reviews = require('./models/reviews')(sequelize, DataTypes);
+db.products = require('./models/products')(sequelize, DataTypes);
+db.isLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
+db.cart_items = require('./models/cart_items')(sequelize, DataTypes);
+db.weekly_specials = require('./models/weekly_specials')(sequelize, DataTypes);
 
+db.users.hasMany(db.reviews, { foreignKey: 'user_id' });
+db.reviews.belongsTo(db.users, { foreignKey: 'user_id' });
 
+db.products.hasMany(db.reviews, { foreignKey: 'product_id' });
+db.reviews.belongsTo(db.products, { foreignKey: 'product_id' });
+
+db.users.hasOne(db.isLoggedIn, { foreignKey: 'user_id' });
+db.isLoggedIn.belongsTo(db.users, { foreignKey: 'user_id' });
+
+db.products.belongsToMany(db.users, { through: db.CartItem, foreignKey: 'product_id' });
+db.users.belongsToMany(db.products, { through: db.CartItem, foreignKey: 'user_id' });
+
+db.products.hasMany(db.weekly_specials, { foreignKey: 'product_id' });
+db.weekly_specials.belongsTo(db.products, { foreignKey: 'product_id' });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
