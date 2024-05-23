@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../database/index.js");
 
 // Select all weekly specials from the database.
 exports.all = async (req, res) => {

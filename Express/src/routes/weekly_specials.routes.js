@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const weeklySpecialController = require('../controllers/weekly_special.controller');
+const weeklySpecialController = require('../controllers/weeklyspecials.controller');
 
 // Get all weekly specials
 router.get('/', weeklySpecialController.all);

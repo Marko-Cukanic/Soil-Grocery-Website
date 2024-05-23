@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../database/index.js");
 
 // Select all reviews from the database.
 exports.all = async (req, res) => {

@@ -36,8 +36,8 @@ db.reviews.belongsTo(db.products, { foreignKey: 'product_id' });
 db.users.hasOne(db.isLoggedIn, { foreignKey: 'user_id' });
 db.isLoggedIn.belongsTo(db.users, { foreignKey: 'user_id' });
 
-db.products.belongsToMany(db.users, { through: db.CartItem, foreignKey: 'product_id' });
-db.users.belongsToMany(db.products, { through: db.CartItem, foreignKey: 'user_id' });
+db.products.belongsToMany(db.users, { through: db.cart_items, foreignKey: 'product_id' });
+db.users.belongsToMany(db.products, { through: db.cart_items, foreignKey: 'user_id' });
 
 db.products.hasMany(db.weekly_specials, { foreignKey: 'product_id' });
 db.weekly_specials.belongsTo(db.products, { foreignKey: 'product_id' });

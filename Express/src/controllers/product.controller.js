@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../database/index.js');
 
 // Get all products
 exports.all = async (req, res) => {

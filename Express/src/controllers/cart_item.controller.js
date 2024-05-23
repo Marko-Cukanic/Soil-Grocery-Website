@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../database/index.js");
 
 // Select all cart items from the database.
 exports.all = async (req, res) => {

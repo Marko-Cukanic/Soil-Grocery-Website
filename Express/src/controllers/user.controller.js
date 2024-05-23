@@ -1,4 +1,4 @@
-const db = require("../database");
+const db = require("../database/index.js");
 const argon2 = require("argon2");
 
 // Select all users from the database.
