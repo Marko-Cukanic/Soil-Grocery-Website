@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) =>
         autoIncrement: true
       },
       name: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING,
         allowNull: false
       },
       price: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) =>
         allowNull: true
       },
       image: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING,
         allowNull: false
       }
     }, {
