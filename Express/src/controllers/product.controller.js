@@ -1,12 +1,12 @@
-const db = require("../models");
+const db = require('../database');
 
-// Select all products from the database.
+// Get all products
 exports.all = async (req, res) => {
   const products = await db.Product.findAll();
   res.json(products);
 };
 
-// Create a product in the database.
+// Create a new product
 exports.create = async (req, res) => {
   const product = await db.Product.create({
     name: req.body.name,

@@ -21,7 +21,7 @@ const userRoutes = require('./src/routes/user.routes');
 app.use('/api/users', userRoutes);
 
 // Import and use product routes
-const productRoutes = require('./src/routes/product.routes');
+const productRoutes = require('./src/routes/products.routes');
 app.use('/api/products', productRoutes);
 
 // Import and use review routes
@@ -29,11 +29,11 @@ const reviewRoutes = require('./src/routes/review.routes');
 app.use('/api/reviews', reviewRoutes);
 
 // Import and use cart routes
-const cartRoutes = require('./src/routes/cart.routes');
+const cartRoutes = require('./src/routes/cart_item.routes');
 app.use('/api/cart', cartRoutes);
 
 // Import and use weekly special routes
-const weeklySpecialRoutes = require('./src/routes/weekly_special.routes');
+const weeklySpecialRoutes = require('./src/routes/weekly_specials.routes');
 app.use('/api/weekly-specials', weeklySpecialRoutes);
 
 // Database synchronization and server start
