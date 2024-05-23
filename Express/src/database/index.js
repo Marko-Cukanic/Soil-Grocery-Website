@@ -1,40 +1,43 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('database', 'username', 'password', {
-  host: 'host',
-  dialect: 'mysql'
-});
+require('dotenv').config();
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASS,
+  {
+    host: process.env.DB_HOST,
+    dialect: 'mysql' // Specify your dialect here
+  }
+);
+
+const db = {};
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
 // Import models
-const User = require('./user')(sequelize, DataTypes);
-const Product = require('./product')(sequelize, DataTypes);
-const CartItem = require('./cart_item')(sequelize, DataTypes);
-const IsLoggedIn = require('./is_logged_in')(sequelize, DataTypes);
-const Review = require('./review')(sequelize, DataTypes);
-const WeeklySpecial = require('./weekly_special')(sequelize, DataTypes);
+db.User = require('./models/user')(sequelize, DataTypes);
+db.Product = require('./models/product')(sequelize, DataTypes);
+db.CartItem = require('./models/cart_item')(sequelize, DataTypes);
+db.IsLoggedIn = require('./models/is_logged_in')(sequelize, DataTypes);
+db.Review = require('./models/review')(sequelize, DataTypes);
+db.WeeklySpecial = require('./models/weekly_special')(sequelize, DataTypes);
 
 // Set up associations
-User.hasMany(Review, { foreignKey: 'user_id' });
-Review.belongsTo(User, { foreignKey: 'user_id' });
+db.User.hasMany(db.Review, { foreignKey: 'user_id' });
+db.Review.belongsTo(db.User, { foreignKey: 'user_id' });
 
-Product.hasMany(Review, { foreignKey: 'product_id' });
-Review.belongsTo(Product, { foreignKey: 'product_id' });
+db.Product.hasMany(db.Review, { foreignKey: 'product_id' });
+db.Review.belongsTo(db.Product, { foreignKey: 'product_id' });
 
-User.hasOne(IsLoggedIn, { foreignKey: 'user_id' });
-IsLoggedIn.belongsTo(User, { foreignKey: 'user_id' });
+db.User.hasOne(db.IsLoggedIn, { foreignKey: 'user_id' });
+db.IsLoggedIn.belongsTo(db.User, { foreignKey: 'user_id' });
 
-Product.belongsToMany(User, { through: CartItem, foreignKey: 'product_id' });
-User.belongsToMany(Product, { through: CartItem, foreignKey: 'user_id' });
+db.Product.belongsToMany(db.User, { through: db.CartItem, foreignKey: 'product_id' });
+db.User.belongsToMany(db.Product, { through: db.CartItem, foreignKey: 'user_id' });
 
-Product.hasMany(WeeklySpecial, { foreignKey: 'product_id' });
-WeeklySpecial.belongsTo(Product, { foreignKey: 'product_id' });
+db.Product.hasMany(db.WeeklySpecial, { foreignKey: 'product_id' });
+db.WeeklySpecial.belongsTo(db.Product, { foreignKey: 'product_id' });
 
-// Export models and sequelize instance
-module.exports = {
-  sequelize,
-  User,
-  Product,
-  CartItem,
-  IsLoggedIn,
-  Review,
-  WeeklySpecial
-};
+module.exports = db;
