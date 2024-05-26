@@ -81,3 +81,5 @@ https://github.com/rmit-fsd-2024-s1/s4007708-s4008040-a1.git
 Unfortunatley the API was not fully implemented yet.
 
 Everything else works user must sign up and be logged in to view store and cart.
+
+npm install dotenv sequelize mysql2
