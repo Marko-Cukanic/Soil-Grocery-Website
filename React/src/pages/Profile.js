@@ -18,7 +18,6 @@ export default function Profile() {
     if (id) {
       axios.get(`http://localhost:3000/api/Users/${id}`)
         .then(response => {
-          console.log('User Data:', response.data); // Log the user data for debugging
           setUserData(response.data);
         })
         .catch(error => {
@@ -42,14 +41,11 @@ export default function Profile() {
     return <div>Loading...</div>;
   }
 
-  let formattedDateJoined = userData.dateJoined;
-  if (formattedDateJoined) {
-    formattedDateJoined = new Date(formattedDateJoined).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
+  const formattedDateJoined = new Date(userData.dateJoined).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   return (
     <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
@@ -61,7 +57,7 @@ export default function Profile() {
             <div style={{ marginTop: '20px' }}>
               <p><strong>Name:</strong> {userData.name}</p>
               <p><strong>Email:</strong> {userData.email}</p>
-              <p><strong>Date Joined:</strong> {formattedDateJoined || 'N/A'}</p>
+              <p><strong>Date Joined:</strong> {formattedDateJoined}</p>
               {userData.gender && <p><strong>Gender:</strong> {userData.gender}</p>}
               {userData.age && <p><strong>Age:</strong> {userData.age}</p>}
               {userData.weight && <p><strong>Weight:</strong> {userData.weight}</p>}
