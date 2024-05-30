@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 // Import and use user routes
 const userRoutes = require('./src/routes/user.routes');
-app.use('/api/users', userRoutes);
+app.use('/api/Users', userRoutes);
 
 // Import and use product routes
 const productRoutes = require('./src/routes/products.routes');

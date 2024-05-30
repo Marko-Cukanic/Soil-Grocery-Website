@@ -23,14 +23,16 @@ export default function Login() {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/users/login', { email, password });
+      const response = await axios.post('http://localhost:3000/api/Users/login', { email, password });
 
       console.log(response.data); // Log the entire response for debugging
 
-      if (response.data && response.data.user && response.data.user.name) {
+      if (response.data && response.data.user && response.data.user.id) {
+        const id = response.data.user.id;
         console.log(`Welcome ${response.data.user.name}`);
         localStorage.setItem('isLoggedIn', 'true');
-        navigate('/profile');
+        localStorage.setItem('id', id);
+        navigate('/Profile');
         window.location.reload();
       } else {
         setApiError('Invalid response from server');

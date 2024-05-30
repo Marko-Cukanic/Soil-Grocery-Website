@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function EditProfile() {
-  // State to hold user data including health information
   const [userData, setUserData] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: '',
     age: '',
     weight: '',
     height: '',
@@ -15,52 +13,64 @@ export default function EditProfile() {
     dietaryPreferences: '',
     healthGoals: '',
   });
-  
-  const [isSuccess, setIsSuccess] = useState(false); // State to track success
+
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
 
-  // Effect to retrieve user data from local storage when the component mounts
   useEffect(() => {
-    const userDataFromStorage = JSON.parse(localStorage.getItem('user'));
-    setUserData(userDataFromStorage);
-  }, []); // Empty dependency array ensures the effect runs only once when the component mounts
-
-  // Function to handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (userData.password !== userData.confirmPassword) {
-      alert('Password and confirm password do not match');
-      return;
+    const id = localStorage.getItem('id');
+    if (id) {
+      axios.get(`http://localhost:3000/api/Users/${id}`)
+        .then(response => {
+          setUserData(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
     }
-    localStorage.setItem('user', JSON.stringify(userData));
-    setIsSuccess(true); 
-    setTimeout(() => {
-      navigate('/profile')
-      setIsSuccess(false); 
-    }, 700);
-    
-  };;
+  }, []);
 
-  // Function to handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
   };
-  
-  // Function to handle logout and account deletion
-  const handleLogout = () => {
-    localStorage.removeItem('user'); // Remove user data from local storage
-    localStorage.setItem('isLoggedIn', 'false'); // Update login status
-    alert('Your account has been deleted');
-    navigate('/login'); // Redirect to the login page
-    window.location.reload(); // Reload the page to reflect changes
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Form submitted"); // Debug: Check if form submission is triggered
+    console.log("User Data:", userData); // Debug: Check user data being sent
+
+    try {
+      const id = localStorage.getItem('id');
+      const response = await axios.put(`http://localhost:3000/api/Users/${id}`, userData);
+      console.log("Response from server:", response.data); // Debug: Check response from server
+
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate('/Profile');
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      setApiError('An error occurred while updating your profile. Please try again.');
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('id');
+    localStorage.setItem('isLoggedIn', 'false');
+    alert('Your account has been deleted');
+    navigate('/login');
+    window.location.reload();
   };
 
   return (
     <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Edit Profile</h2>
       {isSuccess && <p style={{ color: 'green', textAlign: 'center' }}>Changes saved successfully! Redirecting you back</p>}
+      {apiError && <p className="error">{apiError}</p>}
       <form onSubmit={handleSubmit} style={{ backgroundColor: '#f9f9f9', borderRadius: '10px', padding: '20px' }}>
         {/* Name */}
         <div style={{ marginTop: '20px' }}>
@@ -82,30 +92,6 @@ export default function EditProfile() {
             id="email"
             name="email"
             value={userData.email}
-            onChange={handleChange}
-            style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
-          />
-        </div>
-        {/* Password */}
-        <div style={{ marginTop: '20px' }}>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={userData.password}
-            onChange={handleChange}
-            style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
-          />
-        </div>
-        {/* Confirm Password */}
-        <div style={{ marginTop: '20px' }}>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={userData.confirmPassword}
             onChange={handleChange}
             style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
           />
@@ -148,18 +134,18 @@ export default function EditProfile() {
         </div>
         {/* Activity Level */}
         <div style={{ marginTop: '20px' }}>
-            <label htmlFor="activityLevel">Activity Level:</label>
-            <select
-              id="activityLevel"
-              name="activityLevel"
-              value={userData.activityLevel}
-              onChange={handleChange}
-              style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+          <label htmlFor="activityLevel">Activity Level:</label>
+          <select
+            id="activityLevel"
+            name="activityLevel"
+            value={userData.activityLevel}
+            onChange={handleChange}
+            style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
         </div>
         {/* Dietary Preferences */}
         <div style={{ marginTop: '20px' }}>
@@ -204,6 +190,7 @@ export default function EditProfile() {
             Save Changes
           </button>
           <button
+            type="button"
             onClick={handleLogout}
             style={{
               padding: '10px 20px',

@@ -1,31 +1,59 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function Profile(){
-  const [userData, setUserData] = useState(null); // State to store user data
+export default function Profile() {
+  const [userData, setUserData] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Hook to enable navigation in the component
+  useEffect(() => {
+    const id = localStorage.getItem('id');
+    const loggedInStatus = localStorage.getItem('isLoggedIn');
+    
+    if (loggedInStatus === 'true') {
+      setIsLoggedIn(true);
+    }
 
-  const isLoggedIn = JSON.parse(localStorage.getItem('isLoggedIn'));  // Check if the user is logged in
-
-  useEffect(() => {   // Effect to fetch user data from local storage
-    const userDataFromStorage = JSON.parse(localStorage.getItem('user'));
-    setUserData(userDataFromStorage);
+    if (id) {
+      axios.get(`http://localhost:3000/api/Users/${id}`)
+        .then(response => {
+          console.log('User Data:', response.data); // Log the user data for debugging
+          setUserData(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
+    }
   }, []);
-
-  const handleSignOut = () => {
-    localStorage.setItem('isLoggedIn', 'false');
-    navigate('/login');
-    window.location.reload();
-  };
 
   const handleEdit = () => {
     navigate('/EditProfile');
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem('id');
+    localStorage.setItem('isLoggedIn', 'false');
+    navigate('/Login');
+    window.location.reload();
+  };
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
+  let formattedDateJoined = userData.dateJoined;
+  if (formattedDateJoined) {
+    formattedDateJoined = new Date(formattedDateJoined).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
   return (
     <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
-      {isLoggedIn ?(
+      {isLoggedIn ? (
         <div style={{ backgroundColor: '#f9f9f9', borderRadius: '10px', padding: '20px' }}>
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Profile</h2>
           <p style={{ textAlign: 'center' }}>Successfully Logged In</p>
@@ -33,8 +61,8 @@ function Profile(){
             <div style={{ marginTop: '20px' }}>
               <p><strong>Name:</strong> {userData.name}</p>
               <p><strong>Email:</strong> {userData.email}</p>
-              <p><strong>Date Joined:</strong> {userData.dateJoined}</p>
-              {userData.gender && <p><strong>Gender:</strong> {userData.gender}</p>} 
+              <p><strong>Date Joined:</strong> {formattedDateJoined || 'N/A'}</p>
+              {userData.gender && <p><strong>Gender:</strong> {userData.gender}</p>}
               {userData.age && <p><strong>Age:</strong> {userData.age}</p>}
               {userData.weight && <p><strong>Weight:</strong> {userData.weight}</p>}
               {userData.height && <p><strong>Height:</strong> {userData.height}</p>}
@@ -85,5 +113,3 @@ function Profile(){
     </div>
   );
 }
-
-export default Profile;

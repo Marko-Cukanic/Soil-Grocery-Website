@@ -40,20 +40,30 @@ function Signup() {
 
     try {
       // Ensure the URL is correct
-      const response = await axios.post('http://localhost:3000/api/users', { // Change this URL if needed
+      const response = await axios.post('http://localhost:3000/api/Users', { 
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
 
-      setSuccessMessage('Registration successful! Logging you in');
-      localStorage.setItem('isLoggedIn', 'true');
-      setTimeout(() => {
-        navigate('/Profile');
-        window.location.reload();
-      }, 2000);
+      if (response.data && response.data.id) {
+        const id = response.data.id;
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('id', id);
+        setSuccessMessage('Registration successful! Logging you in');
+        setTimeout(() => {
+          navigate('/Profile');
+          window.location.reload();
+        }, 2000);
+      } else {
+        setApiError('Invalid response from server');
+      }
     } catch (error) {
-      setApiError('An error occurred during registration. Please try again.');
+      if (error.response) {
+        setApiError(`Error: ${error.response.data.message || 'An error occurred during registration. Please try again.'}`);
+      } else {
+        setApiError('An error occurred during registration. Please try again.');
+      }
       console.error('Error response:', error.response);
       console.error('Error message:', error.message);
     }

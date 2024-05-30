@@ -83,3 +83,5 @@ Unfortunatley the API was not fully implemented yet.
 Everything else works user must sign up and be logged in to view store and cart.
 
 npm install dotenv sequelize mysql2
+
+npm install axios

@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
     healthGoals: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    dateJoined: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   }, {
     timestamps: false
