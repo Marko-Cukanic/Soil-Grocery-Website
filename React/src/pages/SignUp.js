@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ function Signup() {
   const [successMessage, setSuccessMessage] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
 
   function handleChange(e) {
@@ -18,44 +20,43 @@ function Signup() {
     setFormData({ ...formData, [name]: value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     // Perform validations
     if (!formData.name || !formData.email || !formData.password) {
-      // Handle required field validation
       return;
     }
     if (!isValidEmail(formData.email)) {
-      // Handle invalid email format
       return;
     }
     if (!isStrongPassword(formData.password)) {
-      // Handle strong passowrd validations
       setPasswordError('Password should be at least 8 characters long and contain at least one uppercase letter and one symbol.');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      // Handles password matching
       setConfirmPasswordError('Passwords do not match.');
       return;
     }
-  
-    // Record date joined and add it to formData
-    const currentDate = new Date().toISOString().slice(0, 10);
-    const updatedFormData = {
-      ...formData,
-      dateJoined: currentDate
-    };
-  
-    // Save user details to localStorage, including date joined
-    localStorage.setItem('user', JSON.stringify(updatedFormData));
-    setSuccessMessage('Registration successful! Logging you in');
-    localStorage.setItem('isLoggedIn', 'true');
-    // Redirect to login page after successful signup
-    setTimeout(() => {
-      navigate('/Profile');
-      window.location.reload();
-    }, 2000);
+
+    try {
+      // Ensure the URL is correct
+      const response = await axios.post('http://localhost:3000/api/users', { // Change this URL if needed
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      setSuccessMessage('Registration successful! Logging you in');
+      localStorage.setItem('isLoggedIn', 'true');
+      setTimeout(() => {
+        navigate('/Profile');
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      setApiError('An error occurred during registration. Please try again.');
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+    }
   }
 
   return (
@@ -122,6 +123,7 @@ function Signup() {
         </div>
       </form>
       {successMessage && <p>{successMessage}</p>}
+      {apiError && <p className="error">{apiError}</p>}
     </div>
   );
 }
@@ -135,10 +137,7 @@ function isValidEmail(email) {
 }
 
 function isStrongPassword(password) {
-  // Define regular expressions for uppercase letters and symbols
   const uppercaseRegex = /[A-Z]/;
   const symbolRegex = /[\W_]/; // Matches non-word characters (symbols) and underscores
-  
-  // Check if the password meets the criteria
   return password.length >= 8 && uppercaseRegex.test(password) && symbolRegex.test(password);
 }
