@@ -24,9 +24,11 @@ function Signup() {
     e.preventDefault();
     // Perform validations
     if (!formData.name || !formData.email || !formData.password) {
+      setApiError('All fields are required.');
       return;
     }
     if (!isValidEmail(formData.email)) {
+      setApiError('Invalid email format.');
       return;
     }
     if (!isStrongPassword(formData.password)) {
@@ -39,7 +41,6 @@ function Signup() {
     }
 
     try {
-      // Ensure the URL is correct
       const response = await axios.post('http://localhost:3000/api/Users', { 
         name: formData.name,
         email: formData.email,
@@ -59,8 +60,8 @@ function Signup() {
         setApiError('Invalid response from server');
       }
     } catch (error) {
-      if (error.response) {
-        setApiError(`Error: ${error.response.data.message || 'An error occurred during registration. Please try again.'}`);
+      if (error.response && error.response.data.message === 'Email already exists') {
+        setApiError('Email already exists. Please use a different email.');
       } else {
         setApiError('An error occurred during registration. Please try again.');
       }

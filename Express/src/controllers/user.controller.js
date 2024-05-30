@@ -51,6 +51,12 @@ exports.login = async (req, res) => {
 // Create a user in the database.
 exports.create = async (req, res) => {
   try {
+    // Check if the email already exists
+    const existingUser = await db.User.findOne({ where: { email: req.body.email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
     const hash = await argon2.hash(req.body.password, { type: argon2.argon2id });
     const user = await db.User.create({
       name: req.body.name,
@@ -65,6 +71,21 @@ exports.create = async (req, res) => {
       healthGoals: req.body.healthGoals
     });
     res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+exports.update = async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.params.id);
+    if (user) {
+      await user.update(req.body);
+      res.json(user);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -38,8 +38,6 @@ export default function EditProfile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted"); // Debug: Check if form submission is triggered
-    console.log("User Data:", userData); // Debug: Check user data being sent
 
     try {
       const id = localStorage.getItem('id');
