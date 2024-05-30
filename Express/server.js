@@ -5,7 +5,7 @@ const cors = require('cors');
 const db = require('./src/database'); // Ensure this path is correct
 
 const app = express();
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(express.json());
@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 // Import and use user routes
 const userRoutes = require('./src/routes/user.routes');
-app.use('/api/Users', userRoutes);
+app.use('/api/Users', userRoutes); // Note: Changed '/api/Users' to '/api/users'
 
 // Import and use product routes
 const productRoutes = require('./src/routes/products.routes');
