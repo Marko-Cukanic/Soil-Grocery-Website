@@ -1,40 +1,74 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart }){
-    const[quantity, setQuantity] = useState(1);
+export default function WeeklySpecials() {
+    const [specialItems, setSpecialItems] = useState([]);
 
-    function handleQuantityChange(e){
-        const newAmount = parseInt(e.target.value);
-        if(!isNaN(newAmount) && newAmount >= 1){
-            setQuantity(newAmount);
-          }
-          else{
-            setQuantity('');
-          }
+    useEffect(() => {
+        const fetchSpecials = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/weekly_specials'); // Ensure this URL is correct
+                setSpecialItems(response.data);
+            } catch (error) {
+                console.error('Error fetching weekly specials:', error);
+            }
+        };
+
+        fetchSpecials();
+    }, []);
+
+    function handleAddToCart(newItem) {
+        console.log(`Adding ${newItem.quantity} of ${newItem.name} to the cart.`);
     }
 
-    function handleAddToCartClick(){
+    return (
+        <div className="dealsPage">
+            <div className="dealsTitle">
+                <h1>Weekly Specials</h1>
+            </div>
+            <ItemGrid items={specialItems} handleAddToCart={handleAddToCart} />
+        </div>
+    );
+}
+
+function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart }) {
+    const [quantity, setQuantity] = useState(1);
+
+    function handleQuantityChange(e) {
+        const newAmount = parseInt(e.target.value);
+        if (!isNaN(newAmount) && newAmount >= 1) {
+            setQuantity(newAmount);
+        } else {
+            setQuantity('');
+        }
+    }
+
+    function handleAddToCartClick() {
         const item = { id, name, price: discountedPrice || price, quantity };
         handleAddToCart(item);
         alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
         setQuantity(1);
     }
 
-    return(
+    const displayPrice = (price) => {
+        return typeof price === 'number' ? price.toFixed(2) : 'N/A';
+    };
+
+    return (
         <div className="item">
             <img src={process.env.PUBLIC_URL + image} alt={name} />
             <div className="itemInfo">
                 <h3>{name}</h3>
                 <p className="itemPrice">
-                    {discountedPrice ?(
+                    {discountedPrice ? (
                         <>
-                            <span className="originalPrice"><s>${price.toFixed(2)}</s></span>
-                            <span className="discountedPrice"> ${discountedPrice.toFixed(2)}</span>
+                            <span className="originalPrice"><s>${displayPrice(price)}</s></span>
+                            <span className="discountedPrice red-text">${displayPrice(discountedPrice)}</span>
                         </>
-                    ) : `$${price.toFixed(2)}`}
+                    ) : `$${displayPrice(price)}`}
                 </p>
                 <div className="amountAdded">
-                    <input type="number" min="1" value={quantity} onChange={handleQuantityChange}/>
+                    <input type="number" min="1" value={quantity} onChange={handleQuantityChange} />
                     <button onClick={handleAddToCartClick}>Add to Cart</button>
                 </div>
             </div>
@@ -42,8 +76,8 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
     );
 }
 
-function ItemGrid({ items, handleAddToCart }){
-    return(
+function ItemGrid({ items, handleAddToCart }) {
+    return (
         <div className="grid-container">
             {items.map(item => (
                 <ShoppingItem
@@ -56,63 +90,6 @@ function ItemGrid({ items, handleAddToCart }){
                     handleAddToCart={handleAddToCart}
                 />
             ))}
-        </div>
-    );
-}
-
-export default function WeeklySpecials(){
-    const [specialItems, setSpecialItems] = useState([]);
-
-    useEffect(() => {
-        const storedItems = JSON.parse(localStorage.getItem('storedItems'));
-        if(storedItems){
-            const randomItems = shuffle(storedItems).slice(0, 5).map(item => {
-                const discountedPrice = item.id <= 3 ? item.price * 0.8 : item.price * 0.5;
-                return{ ...item, discountedPrice };
-            });
-            setSpecialItems(randomItems);
-        }
-    }, []);
-
-    function shuffle(array){
-        let currentIndex = array.length, randomIndex;
-        while(currentIndex !== 0){
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-        return array;
-    }
-
-    function handleAddToCart(newItem) {
-        // Retrieve the current cart items from localStorage
-        const currentCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-      
-        // Check if the item already exists in the cart
-        const existingItemIndex = currentCartItems.findIndex(item => item.id === newItem.id);
-      
-        if (existingItemIndex > -1) {
-          // If the item exists, update the quantity
-          const updatedCartItems = currentCartItems.map((item, index) => {
-            if (index === existingItemIndex) {
-              return { ...item, quantity: item.quantity + newItem.quantity };
-            }
-            return item;
-          });
-          localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-        } else {
-          // If the item does not exist, add it to the cart
-          const updatedCartItems = [...currentCartItems, newItem];
-          localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-        }
-      }
-
-    return(
-        <div className="dealsPage">
-            <div className="dealsTitle">
-                <h1>Weekly Specials</h1>
-            </div>
-            <ItemGrid items={specialItems} handleAddToCart={handleAddToCart}/>
         </div>
     );
 }

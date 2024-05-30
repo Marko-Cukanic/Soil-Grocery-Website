@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 // Import and use user routes
 const userRoutes = require('./src/routes/user.routes');
-app.use('/api/Users', userRoutes); // Note: Changed '/api/Users' to '/api/users'
+app.use('/api/Users', userRoutes); 
 
 // Import and use product routes
 const productRoutes = require('./src/routes/products.routes');
@@ -34,7 +34,7 @@ app.use('/api/cart', cartRoutes);
 
 // Import and use weekly special routes
 const weeklySpecialRoutes = require('./src/routes/weekly_specials.routes');
-app.use('/api/weekly-specials', weeklySpecialRoutes);
+app.use('/api/weekly_specials', weeklySpecialRoutes);
 
 // Database synchronization and server start
 db.sequelize.sync().then(() => {

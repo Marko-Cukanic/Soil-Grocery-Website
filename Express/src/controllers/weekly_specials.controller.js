@@ -1,16 +1,41 @@
-const db = require("../database/index.js");
+const db = require('../database');
+const { Op } = require('sequelize');
 
-// Select all weekly specials from the database.
-exports.all = async (req, res) => {
-  const weeklySpecials = await db.WeeklySpecial.findAll();
-  res.json(weeklySpecials);
+const getRandomProducts = async () => {
+  try {
+    const products = await db.Product.findAll();
+    console.log('Products fetched:', products); // Log fetched products
+    const shuffled = products.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 5);
+  } catch (error) {
+    console.error('Error fetching products:', error); // Log errors
+    throw error;
+  }
 };
 
-// Create a weekly special in the database.
-exports.create = async (req, res) => {
-  const weeklySpecial = await db.WeeklySpecial.create({
-    product_id: req.body.product_id,
-    discounted_price: req.body.discounted_price
-  });
-  res.json(weeklySpecial);
+const getWeeklySpecials = async (req, res) => {
+  try {
+    const products = await getRandomProducts();
+    let specials = [];
+    
+    products.forEach((product, index) => {
+      let discount = index === 0 ? 0.5 : 0.2;
+      let discountedPrice = product.price * (1 - discount);
+      specials.push({
+        id: index + 1,
+        productId: product.id,
+        originalPrice: product.price,
+        discountedPrice: parseFloat(discountedPrice.toFixed(2))
+      });
+    });
+
+    console.log('Weekly specials:', specials); // Log specials
+
+    res.status(200).json(specials);
+  } catch (error) {
+    console.error('Error in getWeeklySpecials:', error); // Log errors
+    res.status(500).json({ error: 'An error occurred while fetching weekly specials.' });
+  }
 };
+
+module.exports = { getWeeklySpecials };
