@@ -26,7 +26,20 @@ exports.login = async (req, res) => {
   try {
     const user = await db.User.findOne({ where: { email: req.body.email } });
     if (user && await argon2.verify(user.password, req.body.password)) {
-      res.json(user);
+      res.json({
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          age: user.age,
+          weight: user.weight,
+          height: user.height,
+          activityLevel: user.activityLevel,
+          dietaryPreferences: user.dietaryPreferences,
+          healthGoals: user.healthGoals
+        }
+      });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
