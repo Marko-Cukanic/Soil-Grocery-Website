@@ -42,7 +42,7 @@ const getWeeklySpecials = async (req, res) => {
         productId: product.id,
         name: product.name,
         image: product.image,
-        originalPrice: product.price,
+        originalPrice: parseFloat(product.price),
         discountedPrice: parseFloat(discountedPrice.toFixed(2))
       });
     });
