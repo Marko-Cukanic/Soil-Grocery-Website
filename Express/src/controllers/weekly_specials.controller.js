@@ -15,6 +15,20 @@ const getRandomProducts = async () => {
   }
 };
 
+const storeWeeklySpecials = async (specials) => {
+  try {
+    // Clear the weekly_specials table before storing new specials
+    await db.WeeklySpecial.destroy({ where: {}, truncate: true });
+
+    // Store the new specials
+    await db.WeeklySpecial.bulkCreate(specials);
+    console.log('Weekly specials stored:', specials); // Log stored specials
+  } catch (error) {
+    console.error('Error storing weekly specials:', error); // Log errors
+    throw error;
+  }
+};
+
 const getWeeklySpecials = async (req, res) => {
   try {
     const products = await getRandomProducts();
@@ -25,7 +39,6 @@ const getWeeklySpecials = async (req, res) => {
       let discountedPrice = product.price * (1 - discount);
       console.log(`Original price: ${product.price}, Discounted price: ${discountedPrice}`); // Log original and discounted prices
       specials.push({
-        id: index + 1,
         productId: product.id,
         name: product.name,
         image: product.image,
@@ -34,7 +47,7 @@ const getWeeklySpecials = async (req, res) => {
       });
     });
 
-    console.log('Weekly specials:', specials); // Log specials
+    await storeWeeklySpecials(specials);
 
     res.status(200).json(specials);
   } catch (error) {

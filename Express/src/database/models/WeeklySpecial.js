@@ -1,19 +1,31 @@
 module.exports = (sequelize, DataTypes) => {
-  const weekly_specials = sequelize.define('weekly_specials', {
+  const WeeklySpecial = sequelize.define('WeeklySpecial', {
     id: {
       type: DataTypes.INTEGER,
+      primaryKey: true,
       autoIncrement: true,
-      primaryKey: true
     },
-    product_id: {
+    productId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false,
     },
-    discounted_price: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true
-    }
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    originalPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    discountedPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
   });
 
-  return weekly_specials;
+  return WeeklySpecial;
 };
