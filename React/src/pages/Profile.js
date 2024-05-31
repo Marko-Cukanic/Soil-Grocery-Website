@@ -83,7 +83,7 @@ export default function Profile() {
               }}
               onClick={handleEdit}
             >
-              Edit Profile Or Add Diet Plan
+              Edit Profile
             </button>
             <button
               style={{
