@@ -1,18 +1,60 @@
-const db = require("../database/index.js");
+const db = require("../database");
 
-// Select all reviews from the database.
-exports.all = async (req, res) => {
-  const reviews = await db.Review.findAll();
-  res.json(reviews);
+exports.getAllReviewsForProduct = async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const reviews = await db.Review.findAll({ where: { product_id: productId } });
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-// Create a review in the database.
-exports.create = async (req, res) => {
-  const review = await db.Review.create({
-    user_id: req.body.user_id,
-    product_id: req.body.product_id,
-    text: req.body.text,
-    stars: req.body.stars
-  });
-  res.json(review);
+exports.addReview = async (req, res) => {
+  const { productId } = req.params;
+  const { user_id, text, stars } = req.body;
+  try {
+    const review = await db.Review.create({
+      user_id,
+      product_id: productId,
+      text,
+      stars
+    });
+    res.status(201).json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateReview = async (req, res) => {
+  const { id } = req.params;
+  const { text, stars } = req.body;
+  try {
+    const review = await db.Review.findByPk(id);
+    if (review) {
+      review.text = text;
+      review.stars = stars;
+      await review.save();
+      res.status(200).json(review);
+    } else {
+      res.status(404).json({ error: 'Review not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteReview = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const review = await db.Review.findByPk(id);
+    if (review) {
+      await review.destroy();
+      res.status(204).send();
+    } else {
+      res.status(404).json({ error: 'Review not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

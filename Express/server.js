@@ -26,7 +26,7 @@ app.use('/api/products', productRoutes);
 
 // Import and use review routes
 const reviewRoutes = require('./src/routes/review.routes');
-app.use('/api/reviews', reviewRoutes);
+app.use('/api/reviews', reviewRoutes); // Ensure this path is correct
 
 // Import and use cart routes
 const cartRoutes = require('./src/routes/cart_item.routes');

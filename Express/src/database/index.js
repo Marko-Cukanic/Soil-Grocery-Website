@@ -27,6 +27,7 @@ db.isLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
 db.CartItems = require('./models/CartItem')(sequelize, DataTypes);
 db.WeeklySpecial = require('./models/WeeklySpecial')(sequelize, DataTypes);
 
+// Define associations
 db.User.hasMany(db.Review, { foreignKey: 'user_id' });
 db.Review.belongsTo(db.User, { foreignKey: 'user_id' });
 
