@@ -30,7 +30,7 @@ app.use('/api/reviews', reviewRoutes);
 
 // Import and use cart routes
 const cartRoutes = require('./src/routes/cart_item.routes');
-app.use('/api/cart', cartRoutes);
+app.use('/api', cartRoutes);
 
 // Import and use weekly special routes
 const weeklySpecialRoutes = require('./src/routes/weekly_specials.routes');

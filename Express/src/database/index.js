@@ -24,7 +24,7 @@ db.User = require('./models/User')(sequelize, DataTypes);
 db.Review = require('./models/Review')(sequelize, DataTypes);
 db.Product = require('./models/Product')(sequelize, DataTypes);
 db.isLoggedIn = require('./models/isLoggedIn')(sequelize, DataTypes);
-db.CartItem = require('./models/CartItem')(sequelize, DataTypes);
+db.CartItems = require('./models/CartItem')(sequelize, DataTypes);
 db.WeeklySpecial = require('./models/WeeklySpecial')(sequelize, DataTypes);
 
 db.User.hasMany(db.Review, { foreignKey: 'user_id' });
@@ -36,8 +36,8 @@ db.Review.belongsTo(db.Product, { foreignKey: 'product_id' });
 db.User.hasOne(db.isLoggedIn, { foreignKey: 'user_id' });
 db.isLoggedIn.belongsTo(db.User, { foreignKey: 'user_id' });
 
-db.Product.belongsToMany(db.User, { through: db.CartItem, foreignKey: 'product_id' });
-db.User.belongsToMany(db.Product, { through: db.CartItem, foreignKey: 'user_id' });
+db.Product.belongsToMany(db.User, { through: db.CartItems, foreignKey: 'product_id' });
+db.User.belongsToMany(db.Product, { through: db.CartItems, foreignKey: 'user_id' });
 
 db.Product.hasMany(db.WeeklySpecial, { foreignKey: 'product_id' });
 db.WeeklySpecial.belongsTo(db.Product, { foreignKey: 'product_id' });
