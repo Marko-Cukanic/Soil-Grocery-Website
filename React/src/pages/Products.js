@@ -88,7 +88,7 @@ export default function Products() {
     })
     .then(response => {
       console.log('Added to cart:', response.data);
-      alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
+     // alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
