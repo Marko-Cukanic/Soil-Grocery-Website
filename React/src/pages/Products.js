@@ -66,6 +66,21 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
     });
   }
 
+  function handleEditReview(review) {
+    // Logic to handle review editing
+    // You can open a modal or toggle a form to edit the review
+  }
+
+  function handleDeleteReview(reviewId) {
+    axios.delete(`http://localhost:3000/api/reviews/${reviewId}`)
+      .then(() => {
+        setReviews(reviews.filter(review => review.id !== reviewId));
+      })
+      .catch(error => {
+        console.error('Error deleting review:', error);
+      });
+  }
+
   return (
     <div className="item">
       <img src={process.env.PUBLIC_URL + image} alt={name} />
@@ -121,6 +136,12 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
                       <span key={index} className={index < review.stars ? 'filled' : 'unfilled'}>★</span>
                     ))}
                   </div>
+                  {localStorage.getItem('id') === review.user_id.toString() && (
+                    <div className="review-actions">
+                      <button onClick={() => handleEditReview(review)}>Edit</button>
+                      <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
