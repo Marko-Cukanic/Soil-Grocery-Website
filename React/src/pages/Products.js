@@ -83,8 +83,8 @@ export default function Products() {
       product_id: item.id,
       name: item.name,
       quantity: item.quantity,
-      price: item.specialPrice || item.price, // Ensure price is included
-      totalPrice: (item.specialPrice || item.price) * item.quantity // Calculate total price
+      price: item.specialPrice || item.price,
+      totalPrice: (item.specialPrice || item.price) * item.quantity
     })
     .then(response => {
       console.log('Added to cart:', response.data);
