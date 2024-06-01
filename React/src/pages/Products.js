@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart }) {
-  // Ensure price and specialPrice are numbers before formatting
   const formattedPrice = !isNaN(price) ? Number(price).toFixed(2) : 'N/A';
   const formattedSpecialPrice = specialPrice && !isNaN(specialPrice) ? Number(specialPrice).toFixed(2) : null;
   const [quantity, setQuantity] = useState(1);
@@ -79,30 +78,21 @@ export default function Products() {
       return;
     }
 
-    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-
-    if (!Array.isArray(cartItems)) {
-      cartItems = [];
-    }
-
-    cartItems = cartItems.filter(cartItem => cartItem && cartItem.id);
-
-    console.log('Existing cart items:', cartItems);
-
-    const existingItemIndex = cartItems.findIndex(cartItem => cartItem.id === item.id);
-
-    console.log('Existing item index:', existingItemIndex);
-
-    if (existingItemIndex !== -1) {
-      cartItems[existingItemIndex].quantity += item.quantity;
-    } else {
-      cartItems.push({ ...item, quantity: item.quantity, price: item.specialPrice || item.price });
-    }
-
-    console.log('Updated cart items:', cartItems);
-
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    console.log('Added', item.quantity, item.name, 'to cart');
+    axios.post('http://localhost:3000/api/CartItems', {
+      user_id: 1, // Replace with actual user_id if available
+      product_id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: item.specialPrice || item.price, // Ensure price is included
+      totalPrice: (item.specialPrice || item.price) * item.quantity // Calculate total price
+    })
+    .then(response => {
+      console.log('Added to cart:', response.data);
+      alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+    });
   }
 
   return (

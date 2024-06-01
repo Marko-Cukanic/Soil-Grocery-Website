@@ -21,7 +21,7 @@ export default function Cart() {
 
   useEffect(() => {
     // Calculate the total price when cartItems change
-    const calculatedTotalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const calculatedTotalPrice = cartItems.reduce((total, item) => total + (item.totalPrice || (item.price * item.quantity)), 0);
     setTotalPrice(calculatedTotalPrice);
   }, [cartItems]);
 
@@ -42,12 +42,22 @@ export default function Cart() {
   const updateQuantity = (itemId, newQuantity) => {
     if (newQuantity < 1) return; // Prevent decreasing quantity below 1
 
-    axios.put(`http://localhost:3000/api/CartItems/${itemId}`, { quantity: newQuantity })
+    const item = cartItems.find(item => item.id === itemId);
+    if (!item) return; // Ensure item exists
+
+    console.log('Item price:', item.price); // Debugging line to check price
+
+    const newTotalPrice = newQuantity * item.price; // Calculate new total price
+    if (isNaN(newTotalPrice)) {
+      console.error('Total price is NaN');
+      return;
+    }
+
+    axios.put(`http://localhost:3000/api/CartItems/${itemId}`, { quantity: newQuantity, totalPrice: newTotalPrice })
       .then(response => {
         const updatedCart = cartItems.map((item) => {
           if (item.id === itemId) {
-            const updatedItem = { ...item, quantity: newQuantity };
-            updatedItem.totalPrice = (updatedItem.price || 0) * newQuantity;
+            const updatedItem = { ...item, quantity: newQuantity, totalPrice: newTotalPrice };
             return updatedItem;
           } else {
             return item;
@@ -62,7 +72,7 @@ export default function Cart() {
   };
 
   const calculateSingleItemPrice = (item) => {
-    return (item.totalPrice || (item.price || 0) * item.quantity).toFixed(2);
+    return (item.totalPrice || (item.price * item.quantity)).toFixed(2);
   };
 
   return (
