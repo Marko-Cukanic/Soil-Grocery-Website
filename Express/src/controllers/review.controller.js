@@ -3,7 +3,13 @@ const db = require("../database");
 exports.getAllReviewsForProduct = async (req, res) => {
   const { productId } = req.params;
   try {
-    const reviews = await db.Review.findAll({ where: { product_id: productId } });
+    const reviews = await db.Review.findAll({
+      where: { product_id: productId },
+      include: {
+        model: db.User,
+        attributes: ['name'] // Assuming the User model has a 'name' attribute
+      }
+    });
     res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -9,7 +9,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
   const [showAddReview, setShowAddReview] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [reviews, setReviews] = useState([]);
-  const [newReview, setNewReview] = useState({ text: '', stars: 0 });
+  const [newReview, setNewReview] = useState({ text: '', stars: 1 });
 
   useEffect(() => {
     if (showReviews) {
@@ -54,11 +54,11 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
     axios.post(`http://localhost:3000/api/reviews/product/${id}`, {
       user_id: user_id,
       text: newReview.text,
-      stars: newReview.stars
+      stars: parseInt(newReview.stars) || 1 // Default to 1 if invalid
     })
     .then(response => {
       setReviews(prev => [...prev, response.data]);
-      setNewReview({ text: '', stars: 0 });
+      setNewReview({ text: '', stars: 1 });
       setShowAddReview(false);
     })
     .catch(error => {
@@ -68,7 +68,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
 
   return (
     <div className="item">
-      <img src={process.env.PUBLIC_URL + image} alt={name} className="product-image" />
+      <img src={process.env.PUBLIC_URL + image} alt={name} />
       <div className="itemInfo">
         <h3>{name}</h3>
         <p className="itemPrice">
@@ -84,7 +84,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
           <input type="number" min="1" value={quantity} onChange={handleQuantityChange} />
           <button onClick={handleAddToCartClick}>Add to Cart</button>
         </div>
-        <div className="buttons-container">
+        <div className="review-buttons">
           <button onClick={() => setShowAddReview(!showAddReview)}>Add a Review</button>
           <button onClick={() => setShowReviews(!showReviews)}>View Reviews</button>
         </div>
@@ -105,17 +105,22 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
               <option value="4">4 stars</option>
               <option value="5">5 stars</option>
             </select>
-            <button type="submit">Submit Review</button>
+            <button type="submit" className="submit-review-button">Submit Review</button>
           </form>
         )}
         {showReviews && (
           <div className="reviews">
-            <h4>Reviews</h4>
+            <h4>REVIEWS</h4>
             {reviews.length > 0 ? (
               reviews.map(review => (
                 <div key={review.id} className="review">
+                  <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
                   <p>{review.text}</p>
-                  <p>Rating: {review.stars} stars</p>
+                  <div className="rating">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <span key={index} className={index < review.stars ? 'filled' : 'unfilled'}>★</span>
+                    ))}
+                  </div>
                 </div>
               ))
             ) : (
