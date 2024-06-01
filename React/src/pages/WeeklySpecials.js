@@ -7,8 +7,8 @@ export default function WeeklySpecials() {
     useEffect(() => {
         const fetchSpecials = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/weekly_specials'); // Ensure this URL is correct
-                console.log('Weekly specials fetched:', response.data); // Log fetched data
+                const response = await axios.get('http://localhost:3000/api/weekly_specials');
+                console.log('Weekly specials fetched:', response.data);
                 setSpecialItems(response.data);
             } catch (error) {
                 console.error('Error fetching weekly specials:', error);
@@ -20,6 +20,21 @@ export default function WeeklySpecials() {
 
     function handleAddToCart(newItem) {
         console.log(`Adding ${newItem.quantity} of ${newItem.name} to the cart.`);
+        axios.post('http://localhost:3000/api/CartItems', {
+            user_id: 1, // Replace with actual user_id if available
+            product_id: newItem.id,
+            name: newItem.name,
+            quantity: newItem.quantity,
+            price: newItem.price,
+            totalPrice: newItem.quantity * newItem.price
+        })
+        .then(response => {
+            console.log('Added to cart:', response.data);
+            alert(`Added ${newItem.quantity} ${newItem.name}(s) to the cart.`);
+        })
+        .catch(error => {
+            console.error('Error adding to cart:', error);
+        });
     }
 
     return (
@@ -37,8 +52,8 @@ function ItemGrid({ items, handleAddToCart }) {
         <div className="grid-container">
             {items.map(item => (
                 <ShoppingItem
-                    key={item.id}
-                    id={item.id}
+                    key={item.productId}
+                    id={item.productId}
                     name={item.name}
                     price={item.originalPrice}
                     discountedPrice={item.discountedPrice}
@@ -69,17 +84,12 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
     function handleAddToCartClick() {
         const item = { id, name, price: discountedPrice || price, quantity };
         handleAddToCart(item);
-        alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
         setQuantity(1);
     }
 
     const displayPrice = (price) => {
-        console.log('Display price called with:', price); // Log price to debug
+        console.log('Display price called with:', price);
         return typeof price === 'number' ? price.toFixed(2) : 'N/A';
-    };
-
-    const redundantFunction = (price) => {
-        return displayPrice(price);
     };
 
     return (
@@ -90,7 +100,7 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
                 <p className="itemPrice">
                     {discountedPrice !== undefined ? (
                         <>
-                            <span className="originalPrice"><s>${redundantFunction(price)}</s></span>
+                            <span className="originalPrice"><s>${displayPrice(price)}</s></span>
                             <span className="discountedPrice red-text">${displayPrice(discountedPrice)}</span>
                         </>
                     ) : `$${displayPrice(price)}`}

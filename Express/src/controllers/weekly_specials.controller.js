@@ -4,27 +4,46 @@ const { Op } = require('sequelize');
 const getRandomProducts = async () => {
   try {
     const products = await db.Product.findAll({
-      attributes: ['id', 'name', 'price', 'image'] // Ensure these attributes are fetched
+      attributes: ['id', 'name', 'price', 'image']
     });
-    console.log('Products fetched:', products); // Log fetched products
+    console.log('Products fetched:', products);
     const shuffled = products.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 5);
   } catch (error) {
-    console.error('Error fetching products:', error); // Log errors
+    console.error('Error fetching products:', error);
     throw error;
   }
 };
 
 const storeWeeklySpecials = async (specials) => {
   try {
-    // Clear the weekly_specials table before storing new specials
     await db.WeeklySpecial.destroy({ where: {}, truncate: true });
-
-    // Store the new specials
     await db.WeeklySpecial.bulkCreate(specials);
-    console.log('Weekly specials stored:', specials); // Log stored specials
+    console.log('Weekly specials stored:', specials);
   } catch (error) {
-    console.error('Error storing weekly specials:', error); // Log errors
+    console.error('Error storing weekly specials:', error);
+    throw error;
+  }
+};
+
+const updateProductSpecialPrices = async (specials) => {
+  try {
+    // Reset specialPrice for all products
+    await db.Product.update(
+      { specialPrice: null },
+      { where: { specialPrice: { [Op.not]: null } } }
+    );
+
+    // Update specialPrice for selected specials
+    for (let special of specials) {
+      await db.Product.update(
+        { specialPrice: special.discountedPrice },
+        { where: { id: special.productId } }
+      );
+    }
+    console.log('Products special prices updated:', specials);
+  } catch (error) {
+    console.error('Error updating product special prices:', error);
     throw error;
   }
 };
@@ -37,7 +56,7 @@ const getWeeklySpecials = async (req, res) => {
     products.forEach((product, index) => {
       let discount = index === 0 ? 0.5 : 0.2;
       let discountedPrice = product.price * (1 - discount);
-      console.log(`Original price: ${product.price}, Discounted price: ${discountedPrice}`); // Log original and discounted prices
+      console.log(`Original price: ${product.price}, Discounted price: ${discountedPrice}`);
       specials.push({
         productId: product.id,
         name: product.name,
@@ -48,10 +67,11 @@ const getWeeklySpecials = async (req, res) => {
     });
 
     await storeWeeklySpecials(specials);
+    await updateProductSpecialPrices(specials);
 
     res.status(200).json(specials);
   } catch (error) {
-    console.error('Error in getWeeklySpecials:', error); // Log errors
+    console.error('Error in getWeeklySpecials:', error);
     res.status(500).json({ error: 'An error occurred while fetching weekly specials.' });
   }
 };
