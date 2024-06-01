@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Payment() {
   // State variables for card details and errors
@@ -6,17 +7,21 @@ export default function Payment() {
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
+  
 
   // State variables for total price and payment submission status
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
   useEffect(() => {
-    // Effect to retrieve total price from local storage when component mounts
-    const storedTotalPrice = localStorage.getItem('totalPrice');
-    if (storedTotalPrice) {
-      setTotalPrice(parseFloat(storedTotalPrice));
-    }
+    // Effect to retrieve total price from the backend when the component mounts
+    axios.get('http://localhost:3000/api/cart/totalPrice')
+      .then(response => {
+        setTotalPrice(response.data.totalPrice);
+      })
+      .catch(error => {
+        console.error('Error fetching total price:', error);
+      });
   }, []);
 
   const handleCardNumberChange = (e) => {
@@ -86,8 +91,7 @@ export default function Payment() {
     if (Object.keys(errors).length === 0) {
       console.log('Payment submitted:', { cardNumber, expiryDate, cvv });
       setPaymentSubmitted(true);
-      localStorage.removeItem('totalPrice');
-      localStorage.removeItem('cartItems');
+      localStorage.removeItem('cartItems'); // Clear cart items
     } else {
       setErrors(errors);
     }

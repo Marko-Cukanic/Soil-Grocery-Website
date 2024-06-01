@@ -128,8 +128,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
             <h4>REVIEWS</h4>
             {reviews.length > 0 ? (
               reviews.map(review => (
-                <div key={review.id} className="review">
-                  <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
+                <div key={review.id} className="review review-separator">                  <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
                   <p>{review.text}</p>
                   <div className="rating">
                     {Array.from({ length: 5 }, (_, index) => (

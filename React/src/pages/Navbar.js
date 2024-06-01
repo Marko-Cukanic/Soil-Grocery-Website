@@ -38,9 +38,7 @@ function Navbar(){
             <li>
               <Link to="/profile">Profile</Link>
             </li>
-            <li>
-              <Link to="/dietPlan">Diet Plan</Link>
-            </li>
+            
             <li>
               <Link to="/cart">Cart</Link>
             </li>
