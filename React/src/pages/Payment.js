@@ -9,18 +9,23 @@ export default function Payment() {
   const [errors, setErrors] = useState({});
   
 
-  // State variables for total price and payment submission status
+  // State variables for cart items and total price
+  const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
   useEffect(() => {
-    // Effect to retrieve total price from the backend when the component mounts
-    axios.get('http://localhost:3000/api/cart/totalPrice')
+    // Fetch cart items from the backend
+    axios.get('http://localhost:3000/api/CartItems')
       .then(response => {
-        setTotalPrice(response.data.totalPrice);
+        setCartItems(response.data);
+
+        // Calculate the total price based on cart items
+        const calculatedTotalPrice = response.data.reduce((total, item) => total + (item.price * item.quantity), 0);
+        setTotalPrice(calculatedTotalPrice);
       })
       .catch(error => {
-        console.error('Error fetching total price:', error);
+        console.error('Error fetching cart items:', error);
       });
   }, []);
 
@@ -91,7 +96,14 @@ export default function Payment() {
     if (Object.keys(errors).length === 0) {
       console.log('Payment submitted:', { cardNumber, expiryDate, cvv });
       setPaymentSubmitted(true);
-      localStorage.removeItem('cartItems'); // Clear cart items
+      // Optionally, clear cart items in the backend
+      axios.delete('http://localhost:3000/api/CartItems')
+        .then(response => {
+          console.log('Cart items cleared');
+        })
+        .catch(error => {
+          console.error('Error clearing cart items:', error);
+        });
     } else {
       setErrors(errors);
     }
