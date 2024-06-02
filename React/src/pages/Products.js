@@ -10,12 +10,14 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
   const [showReviews, setShowReviews] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ text: '', stars: 1 });
+  const [editReview, setEditReview] = useState(null);
 
   useEffect(() => {
     if (showReviews) {
       axios.get(`http://localhost:3000/api/reviews/product/${id}`)
         .then(response => {
           setReviews(response.data);
+          
         })
         .catch(error => {
           console.error('Error fetching reviews:', error);
@@ -60,6 +62,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
       setReviews(prev => [...prev, response.data]);
       setNewReview({ text: '', stars: 1 });
       setShowAddReview(false);
+      window.location.reload();
     })
     .catch(error => {
       console.error('Error submitting review:', error);
@@ -67,8 +70,9 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
   }
 
   function handleEditReview(review) {
-    // Logic to handle review editing
-    // You can open a modal or toggle a form to edit the review
+    setNewReview({ text: review.text, stars: review.stars });
+    setEditReview(review);
+    setShowAddReview(true);
   }
 
   function handleDeleteReview(reviewId) {
@@ -128,7 +132,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
             <h4>REVIEWS</h4>
             {reviews.length > 0 ? (
               reviews.map(review => (
-                <div key={review.id} className="review review-separator">                  <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
+                <div key={review.id} className="review review-separator"> <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
                   <p>{review.text}</p>
                   <div className="rating">
                     {Array.from({ length: 5 }, (_, index) => (
