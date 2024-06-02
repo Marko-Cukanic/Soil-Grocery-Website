@@ -93,18 +93,22 @@ const root = {
       });
     },
     addProduct: ({ name, price, specialPrice, image }) => {
-      console.log(`Adding product with name ${name}, price ${price}, specialPrice ${specialPrice}, and image ${image}...`);
-      return new Promise((resolve, reject) => {
-        db.query('INSERT INTO products (name, price, specialPrice, image) VALUES (?, ?, ?, ?)', [name, price, specialPrice, image], (err, results) => {
-          if (err) {
-            console.error("Error adding product:", err);
-            reject(err);
-          }
-          console.log("Added product:", { id: results.insertId, name, price, specialPrice, image });
-          resolve({ id: results.insertId, name, price, specialPrice, image });
+        return new Promise((resolve, reject) => {
+          db.query(
+            'INSERT INTO products (name, price, specialPrice, image) VALUES (?, ?, ?, ?)',
+            [name, price, specialPrice || null, image],
+            (err, results) => {
+              if (err) {
+                reject(err);
+              } else if (!results) {
+                reject(new Error('No results from the database.'));
+              } else {
+                resolve({ id: results.insertId, name, price, specialPrice, image });
+              }
+            }
+          );
         });
-      });
-    },
+      },
     editProduct: ({ id, name, price, specialPrice, image }) => {
       console.log(`Editing product with id ${id}, name ${name}, price ${price}, specialPrice ${specialPrice}, and image ${image}...`);
       return new Promise((resolve, reject) => {
@@ -119,20 +123,44 @@ const root = {
       });
     },
     deleteProduct: ({ id }) => {
-      console.log(`Deleting product with id ${id}...`);
-      return new Promise((resolve, reject) => {
-        db.query('DELETE FROM products WHERE id = ?', [id], (err, results) => {
-          if (err) {
-            console.error("Error deleting product:", err);
-            reject(err);
-          }
-          console.log("Deleted product with id", id);
-          resolve({ id });
+        return new Promise((resolve, reject) => {
+          db.query('DELETE FROM reviews WHERE product_id = ?', [id], (err, results) => {
+            if (err) {
+              reject(err);
+            }
+            db.query('DELETE FROM products WHERE id = ?', [id], (err, results) => {
+              if (err) {
+                reject(err);
+              }
+              resolve({ id });
+            });
+          });
         });
-      });
-    }
-  };
-  
+      },
+
+      reviews: () => {
+        return new Promise((resolve, reject) => {
+          db.query('SELECT * FROM reviews', (err, results) => {
+            if (err) {
+              reject(err);
+            }
+            resolve(results);
+          });
+        });
+      },
+
+      deleteReview: ({ id }) => {
+        return new Promise((resolve, reject) => {
+          db.query('DELETE FROM reviews WHERE id = ?', [id], (err, results) => {
+            if (err) {
+              reject(err);
+            }
+            resolve({ id });
+          });
+        });
+      }
+    };
+    
   app.use('/graphql', graphqlHTTP({
     schema,
     rootValue: root,

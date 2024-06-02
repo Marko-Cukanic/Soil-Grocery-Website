@@ -16,6 +16,8 @@ npm install cors
 
 To run admin 
 
+npm install cors
+
 cd admin-graphql
 cd express admin
 node src/server.js
