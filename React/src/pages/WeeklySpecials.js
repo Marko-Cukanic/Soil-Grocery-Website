@@ -118,7 +118,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
         axios.post(`http://localhost:3000/api/reviews/product/${id}`, {
             user_id: user_id,
             text: newReview.text,
-            stars: parseInt(newReview.stars) || 1 // Default to 1 if invalid
+            stars: parseInt(newReview.stars) || 1 
         })
             .then(response => {
                 setReviews(prev => [...prev, response.data]);

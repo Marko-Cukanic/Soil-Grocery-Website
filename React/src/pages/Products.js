@@ -62,7 +62,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
       setReviews(prev => [...prev, response.data]);
       setNewReview({ text: '', stars: 1 });
       setShowAddReview(false);
-      window.location.reload();
+      //window.location.reload();
     })
     .catch(error => {
       console.error('Error submitting review:', error);
