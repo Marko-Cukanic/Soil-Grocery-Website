@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Payment() {
-  // State variables for card details and errors
+export default function Payment() {//State variables for card details and errors
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
   
-
-  // State variables for cart items and total price
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);//State variables for cart items and total price
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
-  useEffect(() => {
-    // Fetch cart items from the backend
+  useEffect(() => {//Fetch cart items from the backend
     axios.get('http://localhost:3000/api/CartItems')
       .then(response => {
         setCartItems(response.data);
 
-        // Calculate the total price based on cart items
-        const calculatedTotalPrice = response.data.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const calculatedTotalPrice = response.data.reduce((total, item) => total + (item.price * item.quantity), 0);//Calculate the total price based on cart items
         setTotalPrice(calculatedTotalPrice);
       })
       .catch(error => {
@@ -50,7 +45,7 @@ export default function Payment() {
     setCvv(input);
   };
 
-  const validateCardNumber = (number) => {
+  const validateCardNumber = (number) => {//Validates card number
     let sum = 0;
     let shouldDouble = false;
     for (let i = number.length - 1; i >= 0; i--) {
@@ -67,7 +62,7 @@ export default function Payment() {
     return sum % 10 === 0;
   };
 
-  const validateExpiryDate = (date) => {
+  const validateExpiryDate = (date) => {//Validates the expiry date of the card
     const [month, year] = date.split('/').map((x) => parseInt(x, 10));
     if (month < 1 || month > 12 || !year) {
       return false;
@@ -77,7 +72,7 @@ export default function Payment() {
     return expiry > now;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e) => {//Handles the submit/pay (totalPrice) now button
     e.preventDefault();
     const errors = {};
 
@@ -93,10 +88,9 @@ export default function Payment() {
       errors.cvv = 'CVV must be 3 digits';
     }
 
-    if (Object.keys(errors).length === 0) {
+    if (Object.keys(errors).length === 0) {//Optionally, clear cart items in the backend
       console.log('Payment submitted:', { cardNumber, expiryDate, cvv });
       setPaymentSubmitted(true);
-      // Optionally, clear cart items in the backend
       axios.delete('http://localhost:3000/api/CartItems')
         .then(response => {
           console.log('Cart items cleared');
