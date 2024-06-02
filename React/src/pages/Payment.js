@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Payment() {
   // State variables for card details and errors
@@ -7,16 +8,24 @@ export default function Payment() {
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
 
-  // State variables for total price and payment submission status
+  // State variables for cart items and total price
+  const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
   useEffect(() => {
-    // Effect to retrieve total price from local storage when component mounts
-    const storedTotalPrice = localStorage.getItem('totalPrice');
-    if (storedTotalPrice) {
-      setTotalPrice(parseFloat(storedTotalPrice));
-    }
+    // Fetch cart items from the backend
+    axios.get('http://localhost:3000/api/CartItems')
+      .then(response => {
+        setCartItems(response.data);
+
+        // Calculate the total price based on cart items
+        const calculatedTotalPrice = response.data.reduce((total, item) => total + (item.price * item.quantity), 0);
+        setTotalPrice(calculatedTotalPrice);
+      })
+      .catch(error => {
+        console.error('Error fetching cart items:', error);
+      });
   }, []);
 
   const handleCardNumberChange = (e) => {
@@ -86,8 +95,14 @@ export default function Payment() {
     if (Object.keys(errors).length === 0) {
       console.log('Payment submitted:', { cardNumber, expiryDate, cvv });
       setPaymentSubmitted(true);
-      localStorage.removeItem('totalPrice');
-      localStorage.removeItem('cartItems');
+      // Optionally, clear cart items in the backend
+      axios.delete('http://localhost:3000/api/CartItems')
+        .then(response => {
+          console.log('Cart items cleared');
+        })
+        .catch(error => {
+          console.error('Error clearing cart items:', error);
+        });
     } else {
       setErrors(errors);
     }
