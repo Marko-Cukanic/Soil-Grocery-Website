@@ -9,17 +9,35 @@ const app = express();
 // Use CORS middleware
 app.use(cors());
 
-const db = mysql.createConnection({
-  host: 'rmit.australiaeast.cloudapp.azure.com',
-  user: 's4007708_fsd_a2',
-  password: 'p21092004!',
-  database: 's4007708_fsd_a2'
-});
 
-db.connect(err => {
-  if (err) throw err;
-  console.log('MySQL connected...');
-});
+let db = mysql.createConnection({
+    host: 'rmit.australiaeast.cloudapp.azure.com',
+    user: 's4007708_fsd_a2',
+    password: 'p21092004!',
+    database: 's4007708_fsd_a2'
+  });
+  
+  function handleDisconnect() {
+    db.connect((err) => {
+      if (err) {
+        console.error('Error connecting to MySQL:', err);
+        setTimeout(handleDisconnect, 2000); // Reconnect after 2 seconds
+      } else {
+        console.log('MySQL connected...');
+      }
+    });
+  
+    db.on('error', (err) => {
+      console.error('MySQL error:', err);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        handleDisconnect();
+      } else {
+        throw err;
+      }
+    });
+  }
+  
+  handleDisconnect();
 
 const root = {
     users: () => { // Changed from Users to users
