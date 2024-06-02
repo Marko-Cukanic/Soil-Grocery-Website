@@ -11,13 +11,14 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ text: '', stars: 1 });
   const [editReview, setEditReview] = useState(null);
+  const [followStatus, setFollowStatus] = useState({}); // Store follow status for each user
+  const [followError, setFollowError] = useState(''); // Error state for follow action
 
   useEffect(() => {
     if (showReviews) {
       axios.get(`http://localhost:3000/api/reviews/product/${id}`)
         .then(response => {
           setReviews(response.data);
-          
         })
         .catch(error => {
           console.error('Error fetching reviews:', error);
@@ -53,20 +54,38 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
       alert('You need to log in to submit a review');
       return;
     }
-    axios.post(`http://localhost:3000/api/reviews/product/${id}`, {
-      user_id: user_id,
-      text: newReview.text,
-      stars: parseInt(newReview.stars) || 1 // Default to 1 if invalid
-    })
-    .then(response => {
-      setReviews(prev => [...prev, response.data]);
-      setNewReview({ text: '', stars: 1 });
-      setShowAddReview(false);
-      //window.location.reload();
-    })
-    .catch(error => {
-      console.error('Error submitting review:', error);
-    });
+
+    if (editReview) {
+      // Update existing review
+      axios.put(`http://localhost:3000/api/reviews/${editReview.id}`, {
+        text: newReview.text,
+        stars: parseInt(newReview.stars) || 1 // Default to 1 if invalid
+      })
+      .then(response => {
+        setReviews(prev => prev.map(review => review.id === editReview.id ? response.data : review));
+        setNewReview({ text: '', stars: 1 });
+        setEditReview(null);
+        setShowAddReview(false);
+      })
+      .catch(error => {
+        console.error('Error updating review:', error);
+      });
+    } else {
+      // Create new review
+      axios.post(`http://localhost:3000/api/reviews/product/${id}`, {
+        user_id: user_id,
+        text: newReview.text,
+        stars: parseInt(newReview.stars) || 1 // Default to 1 if invalid
+      })
+      .then(response => {
+        setReviews(prev => [...prev, response.data]);
+        setNewReview({ text: '', stars: 1 });
+        setShowAddReview(false);
+      })
+      .catch(error => {
+        console.error('Error submitting review:', error);
+      });
+    }
   }
 
   function handleEditReview(review) {
@@ -83,6 +102,29 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
       .catch(error => {
         console.error('Error deleting review:', error);
       });
+  }
+
+  function handleFollow(userId) {
+    const follower_id = localStorage.getItem('id');
+    if (!follower_id) {
+      alert('You need to log in to follow a user');
+      return;
+    }
+
+    const isFollowing = followStatus[userId];
+
+    axios.post(`http://localhost:3000/api/${isFollowing ? 'unfollow' : 'follow'}`, {
+      follower_id: follower_id,
+      following_id: userId
+    })
+    .then(() => {
+      setFollowStatus(prev => ({ ...prev, [userId]: !isFollowing }));
+      setFollowError(''); // Clear any previous error
+    })
+    .catch(error => {
+      console.error(`Error ${isFollowing ? 'unfollowing' : 'following'} user:`, error);
+      setFollowError(`Error ${isFollowing ? 'unfollowing' : 'following'} user`);
+    });
   }
 
   return (
@@ -145,6 +187,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
                       <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
                     </div>
                   )}
+                  
                 </div>
               ))
             ) : (
@@ -152,6 +195,7 @@ function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart })
             )}
           </div>
         )}
+        
       </div>
     </div>
   );

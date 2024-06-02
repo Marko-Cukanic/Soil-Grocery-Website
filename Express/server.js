@@ -36,6 +36,9 @@ app.use('/api', cartRoutes);
 const weeklySpecialRoutes = require('./src/routes/weekly_specials.routes');
 app.use('/api/weekly_specials', weeklySpecialRoutes);
 
+const followRoutes = require('./src/routes/follower.routes');
+app.use('/api', followRoutes);
+
 // Database synchronization and server start
 db.sequelize.sync().then(() => {
   app.listen(port, () => {
