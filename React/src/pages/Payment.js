@@ -7,6 +7,7 @@ export default function Payment() {
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
+  
 
   // State variables for cart items and total price
   const [cartItems, setCartItems] = useState([]);

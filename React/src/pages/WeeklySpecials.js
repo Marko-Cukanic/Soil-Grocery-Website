@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../products.css';
 
 export default function WeeklySpecials() {
     const [specialItems, setSpecialItems] = useState([]);
@@ -20,8 +21,9 @@ export default function WeeklySpecials() {
 
     function handleAddToCart(newItem) {
         console.log(`Adding ${newItem.quantity} of ${newItem.name} to the cart.`);
+        const user_id = localStorage.getItem('id');
         axios.post('http://localhost:3000/api/CartItems', {
-            user_id: 1, // Replace with actual user_id if available
+            user_id: user_id, 
             product_id: newItem.id,
             name: newItem.name,
             quantity: newItem.quantity,
@@ -56,7 +58,7 @@ function ItemGrid({ items, handleAddToCart }) {
                     id={item.productId}
                     name={item.name}
                     price={item.originalPrice}
-                    discountedPrice={item.discountedPrice}
+                    specialPrice={item.discountedPrice}
                     image={item.image}
                     handleAddToCart={handleAddToCart}
                 />
@@ -65,12 +67,25 @@ function ItemGrid({ items, handleAddToCart }) {
     );
 }
 
-function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart }) {
+function ShoppingItem({ id, name, price, specialPrice, image, handleAddToCart }) {
     const [quantity, setQuantity] = useState(1);
+    const [showAddReview, setShowAddReview] = useState(false);
+    const [showReviews, setShowReviews] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [newReview, setNewReview] = useState({ text: '', stars: 1 });
+    const [editReview, setEditReview] = useState(null);
 
     useEffect(() => {
-        console.log('ShoppingItem props:', { id, name, price, image, discountedPrice });
-    }, [id, name, price, image, discountedPrice]);
+        if (showReviews) {
+            axios.get(`http://localhost:3000/api/reviews/product/${id}`)
+                .then(response => {
+                    setReviews(response.data);
+                })
+                .catch(error => {
+                    console.error('Error fetching reviews:', error);
+                });
+        }
+    }, [id, showReviews]);
 
     function handleQuantityChange(e) {
         const newAmount = parseInt(e.target.value);
@@ -82,13 +97,57 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
     }
 
     function handleAddToCartClick() {
-        const item = { id, name, price: discountedPrice || price, quantity };
+        const item = { id, name, price: parseFloat(price), specialPrice: parseFloat(specialPrice), quantity };
+        alert(`Added ${item.quantity} ${item.name}(s) to the cart.`);
         handleAddToCart(item);
         setQuantity(1);
     }
 
+    function handleReviewChange(e) {
+        const { name, value } = e.target;
+        setNewReview(prev => ({ ...prev, [name]: value }));
+    }
+
+    function handleReviewSubmit(e) {
+        e.preventDefault();
+        const user_id = localStorage.getItem('id');
+        if (!user_id) {
+            alert('You need to log in to submit a review');
+            return;
+        }
+        axios.post(`http://localhost:3000/api/reviews/product/${id}`, {
+            user_id: user_id,
+            text: newReview.text,
+            stars: parseInt(newReview.stars) || 1 
+        })
+            .then(response => {
+                setReviews(prev => [...prev, response.data]);
+                setNewReview({ text: '', stars: 1 });
+                setShowAddReview(false);
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error submitting review:', error);
+            });
+    }
+
+    function handleEditReview(review) {
+        setNewReview({ text: review.text, stars: review.stars });
+        setEditReview(review);
+        setShowAddReview(true);
+    }
+
+    function handleDeleteReview(reviewId) {
+        axios.delete(`http://localhost:3000/api/reviews/${reviewId}`)
+            .then(() => {
+                setReviews(reviews.filter(review => review.id !== reviewId));
+            })
+            .catch(error => {
+                console.error('Error deleting review:', error);
+            });
+    }
+
     const displayPrice = (price) => {
-        console.log('Display price called with:', price);
         return typeof price === 'number' ? price.toFixed(2) : 'N/A';
     };
 
@@ -98,10 +157,10 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
             <div className="itemInfo">
                 <h3>{name}</h3>
                 <p className="itemPrice">
-                    {discountedPrice !== undefined ? (
+                    {specialPrice !== undefined ? (
                         <>
                             <span className="originalPrice"><s>${displayPrice(price)}</s></span>
-                            <span className="discountedPrice red-text">${displayPrice(discountedPrice)}</span>
+                            <span className="discountedPrice red-text">${displayPrice(specialPrice)}</span>
                         </>
                     ) : `$${displayPrice(price)}`}
                 </p>
@@ -109,6 +168,58 @@ function ShoppingItem({ id, name, price, image, discountedPrice, handleAddToCart
                     <input type="number" min="1" value={quantity} onChange={handleQuantityChange} />
                     <button onClick={handleAddToCartClick}>Add to Cart</button>
                 </div>
+                <div className="review-buttons">
+                    <button onClick={() => setShowAddReview(!showAddReview)}>Add a Review</button>
+                    <button onClick={() => setShowReviews(!showReviews)}>View Reviews</button>
+                </div>
+                {showAddReview && (
+                    <form onSubmit={handleReviewSubmit} className="review-form">
+                        <textarea
+                            name="text"
+                            value={newReview.text}
+                            onChange={handleReviewChange}
+                            placeholder="Write a review"
+                            required
+                        />
+                        <select name="stars" value={newReview.stars} onChange={handleReviewChange} required>
+                            <option value="" disabled>Rate the product</option>
+                            <option value="1">1 star</option>
+                            <option value="2">2 stars</option>
+                            <option value="3">3 stars</option>
+                            <option value="4">4 stars</option>
+                            <option value="5">5 stars</option>
+                        </select>
+                        <button type="submit" className="submit-review-button">
+                            {editReview ? 'Update Review' : 'Submit Review'}
+                        </button>
+                    </form>
+                )}
+                {showReviews && (
+                    <div className="reviews">
+                        <h4>REVIEWS</h4>
+                        {reviews.length > 0 ? (
+                            reviews.map(review => (
+                                <div key={review.id} className="review review-separator">
+                                    <strong>{review.User ? review.User.name : 'Anonymous'}</strong>
+                                    <p>{review.text}</p>
+                                    <div className="rating">
+                                        {Array.from({ length: 5 }, (_, index) => (
+                                            <span key={index} className={index < review.stars ? 'filled' : 'unfilled'}>★</span>
+                                        ))}
+                                    </div>
+                                    {localStorage.getItem('id') === review.user_id.toString() && (
+                                        <div className="review-actions">
+                                            <button onClick={() => handleEditReview(review)}>Edit</button>
+                                            <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p>No reviews yet.</p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
