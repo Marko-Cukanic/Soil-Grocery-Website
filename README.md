@@ -26,3 +26,4 @@ cd react admin
 cd admin-dashboard
 npm start
 
+rs
